@@ -1,0 +1,104 @@
+{
+  "title": "Escolha o mundo visual do novo Click Impresso",
+  "question": "O sorteio indicou a Ordem de Serviço de balcão. Manter, escolher outra ou sortear de novo.",
+  "options": [
+    {
+      "id": "assigned",
+      "label": "Ordem de Serviço de balcão",
+      "kicker": "THE ROLL",
+      "lineage": "talão de OS de gráfica rápida, via carbonada, picote e carimbo de prazo",
+      "thesis": "Cada produto é configurado como uma OS que você preenche: papel, acabamento, quantidade e prazo carimbados antes do 'Comprar'. Recusa a vitrine genérica de cards iguais.",
+      "palette": ["#F4F1EA", "#14161C", "#E6007E", "#009FE3", "#FFED00"],
+      "materials": ["papel offset de talão com linhas pautadas", "picote serrilhado entre via e canhoto", "carimbo de borracha magenta/ciano", "numeração tipográfica sequencial"],
+      "viewport": "Home: faixa de busca grande como campo 'Pedido nº' + carrossel de banners reais da Click recortado como canhotos destacáveis; à direita, uma OS-exemplo viva (Crachá em PVC) onde clicar nas faixas de quantidade recalcula total e preço por unidade e carimba 'PRODUÇÃO 2 DIAS ÚTEIS'. PDP: galeria à esquerda, OS completa à direita com 'Adicionar ao carrinho' no pé do canhoto.",
+      "risk": "Se o papel e o carimbo forem tímidos, vira um e-commerce bege comum; se forem exagerados, vira fantasia retrô.",
+      "raised": [
+        {"from": "pop-culture-shelf-benday-comic-page", "raise": "Estado por registro de cor: elementos ociosos ficam com as chapas CMYK meio ponto fora de registro; hover/ativo registra as cores no lugar."},
+        {"from": "craft-making-glazier-colorfield-partition", "raise": "Cor saturada reservada para o que importa agora: magenta só para a ação e o preço ativo, ciano para seleção, amarelo para economia."},
+        {"from": "aww2-zoo-gardens-guide-map", "raise": "Cores planas e sem gradiente em blocos inteiros de seção, nunca como acento espalhado."}
+      ]
+    },
+    {
+      "id": "model-pick",
+      "label": "Folha de impressão com marcas de corte",
+      "kicker": "IMPECCABLE’S PICK",
+      "lineage": "folha de máquina offset: imposição, marcas de corte, alvos de registro e barra de cores CMYK",
+      "thesis": "O site inteiro é uma folha saindo da máquina: produtos impostos na grade com marcas de corte, barra CMYK na borda como navegação.",
+      "palette": ["#FFFFFF", "#111111", "#00A0E3", "#E6007E", "#FFED00"],
+      "materials": ["papel couché branco", "marcas de corte e alvos de registro", "barra de controle de cor"],
+      "viewport": "Banner em uma folha imposta com crop marks nos cantos; categorias como a barra de cores CMYK na borda.",
+      "risk": "É a direção onde a maioria das gráficas e dos modelos chega primeiro; familiar."
+    },
+    {
+      "id": "challenger-benday",
+      "label": "Página de gibi em CMYK (ben-day)",
+      "verdict": "declined",
+      "lineage": "gibis silver-age, retícula ben-day e falha de registro",
+      "palette": ["#F2E6C8", "#E6007E", "#009FE3", "#FFED00", "#14161C"],
+      "materials": ["retícula", "papel jornal"],
+      "case": "CMYK nativo, mas compradores B2B não se reconhecem num gibi e o preço perde clareza.",
+      "kept": "Estado por registro/desregistro das chapas de cor."
+    },
+    {
+      "id": "challenger-glazier",
+      "label": "Divisória de vidro colorido",
+      "verdict": "declined",
+      "lineage": "parede de vitralista em grade de aço",
+      "palette": ["#111111", "#EEF2F2", "#2D5BD8", "#E0A21B"],
+      "materials": ["vidro", "perfil de aço"],
+      "case": "Sem relação com impressão; perde nos dois eixos.",
+      "kept": "Cor saturada só no que importa agora."
+    },
+    {
+      "id": "challenger-zoo",
+      "label": "Mapa-guia de parque",
+      "verdict": "declined",
+      "lineage": "mapa ilustrado de zoológico",
+      "palette": ["#8ED462", "#F5F1E4", "#2C2E2A", "#FF705D"],
+      "materials": ["cor chapada", "lóbulos SVG"],
+      "case": "Bonito, mas não fala de gráfica nem de preço por faixa.",
+      "kept": "Cor plana comprometida em blocos inteiros."
+    },
+    {
+      "id": "challenger-quotes",
+      "label": "Streetwear industrial entre aspas",
+      "verdict": "declined",
+      "lineage": "etiquetas de estoque, faixas de risco",
+      "palette": ["#FFFFFF", "#000000", "#FF6A13"],
+      "materials": ["algodão", "nylon"],
+      "case": "Tom irônico errado para B2B e família.",
+      "kept": "Rotular literalmente cada zona."
+    },
+    {
+      "id": "challenger-specimen",
+      "label": "Espécime de fonte variável",
+      "verdict": "declined",
+      "lineage": "espécimes de fundição digital",
+      "palette": ["#FAFAF7", "#111111", "#E6007E"],
+      "materials": ["papel liso", "glifos"],
+      "case": "Fala com designers, não com quem compra caneca.",
+      "kept": "Hierarquia por contraste de escala."
+    },
+    {
+      "id": "challenger-collider",
+      "label": "Display de colisor de partículas",
+      "verdict": "declined",
+      "lineage": "event display de física",
+      "palette": ["#05070A", "#F2D33B", "#00B5E2", "#E02424"],
+      "materials": ["vácuo", "trilhas"],
+      "case": "Sem identificação com o público; perde nos dois eixos.",
+      "kept": "Números tabulares para todo valor."
+    }
+  ],
+  "reroll": {"registers": ["safer", "bolder"]},
+  "canon": true,
+  "canonCard": {
+    "label": "O padrão do setor",
+    "thesis": "E-commerce de gráfica como os concorrentes (Printi, Zap Gráfica), executado com excelência.",
+    "palette": ["#FFFFFF", "#111827", "#E6007E"],
+    "materials": ["grade limpa", "fotografia de produto"],
+    "viewport": "Header com busca, banner carrossel, grade de produtos, PDP com configurador lateral.",
+    "risk": "Indistinguível da concorrência por definição."
+  },
+  "steer": true
+}

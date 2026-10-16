@@ -1,0 +1,9 @@
+{
+  "world": "folha de impressão",
+  "colors": {"paper": "#ffffff", "stock": "#ecebe7", "ink": "#15161a", "ink2": "#464953", "ink3": "#5f626c", "cyan": "#009fe3", "cyanDeep": "#0074ad", "cyanWash": "#e3f4fc", "magenta": "#e6007e", "magentaDeep": "#b80065", "magentaWash": "#fde6f2", "yellow": "#ffed00"},
+  "roles": {"action": "magenta", "price": "magenta", "selection": "cyan", "savings": "yellow", "line": "ink"},
+  "type": {"family": "Archivo (variable, wdth)", "display": {"wdth": 72, "weight": 800, "lineHeight": 0.95}, "sub": {"wdth": 85, "weight": 700}, "numerals": "tabular"},
+  "radius": 0,
+  "marks": {"length": "14px", "gap": "6px", "mobileLength": "10px", "mobileGap": "4px"},
+  "motion": {"easeOut": "cubic-bezier(0.16, 1, 0.3, 1)", "signature": "banner sheet-feed clip-path wipe + CMYK patch autoplay indicator"}
+}
