@@ -43,7 +43,7 @@ async function ProductContent({ params }: { params: PageProps<"/produto/[id]">["
       ? [{ label: "Impressão", value: product.colors }]
       : []),
     ...(product.productionDays && !product.specs.some((s) => /prazo/i.test(s.label))
-      ? [{ label: "Prazo de produção", value: `${product.productionDays} dias úteis` }]
+      ? [{ label: "Prazo de produção", value: `${product.productionDays} ${product.productionDays === 1 ? "dia útil" : "dias úteis"}` }]
       : []),
   ];
   const intro = product.intro.filter((p) => p.trim() && p.trim() !== title);

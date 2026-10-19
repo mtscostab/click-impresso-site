@@ -18,8 +18,11 @@ const HEADER_OFFSET = -84;
 
 /** Rola até um elemento depois que os pins do GSAP terminaram de medir a página. */
 export function scrollToHash(hash: string, immediate = false) {
-  const el = hash ? document.getElementById(decodeURIComponent(hash.replace(/^#/, ""))) : null;
+  let id: string;
+  try { id = decodeURIComponent(hash.replace(/^#/, "")); } catch { return false; }
+  const el = hash ? document.getElementById(id) : null;
   if (!el) return false;
+  immediate ||= window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   ScrollTrigger.refresh();
   const top = el.getBoundingClientRect().top + window.scrollY;
   // seções fixadas (pin) ficam dentro de um pin-spacer; o topo certo é o do spacer
@@ -118,11 +121,23 @@ export function SmoothScroll() {
       const a = (e.target as HTMLElement).closest("a");
       if (!a || a.target === "_blank") return;
       const url = new URL(a.href, location.href);
-      if (url.origin !== location.origin || url.pathname !== location.pathname || !url.hash) return;
-      if (!document.getElementById(decodeURIComponent(url.hash.slice(1)))) return;
+      if (url.origin !== location.origin || url.pathname !== location.pathname) return;
+      if (!url.hash) {
+        if (url.pathname === document.querySelector<HTMLAnchorElement>(".brand")?.pathname && url.search === location.search) {
+          e.preventDefault();
+          history.pushState(null, "", url.pathname + url.search);
+          scrollToHash("#conteudo");
+        }
+        return;
+      }
+      let id: string;
+      try { id = decodeURIComponent(url.hash.slice(1)); } catch { return; }
+      const destination = document.getElementById(id);
+      if (!destination) return;
       e.preventDefault();
       history.pushState(null, "", url.pathname + url.search + url.hash);
       scrollToHash(url.hash);
+      if (id === "conteudo") destination.focus({ preventScroll: true });
     }
     document.addEventListener("click", onClick, true);
     return () => document.removeEventListener("click", onClick, true);
@@ -197,20 +212,22 @@ export function SmoothScroll() {
       return () => {
         cancel();
         clearTimeout(r);
+        clearTimeout(release);
         window.removeEventListener("wheel", cancel);
         window.removeEventListener("touchstart", cancel);
         window.removeEventListener("keydown", cancel);
       };
     }
+    let followup: ReturnType<typeof setTimeout> | undefined;
     let tries = 0;
     const t = setInterval(() => {
       tries++;
       if (scrollToHash(hash, true) || tries > 20) {
         clearInterval(t);
-        setTimeout(() => scrollToHash(hash, true), 450);
+        followup = setTimeout(() => scrollToHash(hash, true), 450);
       }
     }, 150);
-    return () => clearInterval(t);
+    return () => { clearInterval(t); clearTimeout(followup); clearTimeout(release); };
   }, [pathname]);
 
   return null;

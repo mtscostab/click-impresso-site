@@ -31,6 +31,7 @@ export function StoreMap({ handle, initial = VIEWS.sul, interactive = true, acti
     const map = useRef<MLMap | null>(null);
     const markers = useRef<Map<string, { m: Marker; el: HTMLElement }>>(new Map());
     const [failed, setFailed] = useState(false);
+    const popupTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
     const select = useRef(onSelect);
     select.current = onSelect;
 
@@ -81,6 +82,7 @@ export function StoreMap({ handle, initial = VIEWS.sul, interactive = true, acti
         markers.current.set(s.email, { m: marker, el });
       });
       return () => {
+        if (popupTimer.current) clearTimeout(popupTimer.current);
         markers.current.clear();
         m.remove();
         map.current = null;
@@ -94,14 +96,17 @@ export function StoreMap({ handle, initial = VIEWS.sul, interactive = true, acti
 
     useImperativeHandle(handle, () => ({
       fly(v, duration = 2600) {
-        map.current?.flyTo({ ...v, duration, essential: true, curve: 1.5 });
+        map.current?.flyTo({ ...v, duration, essential: false, curve: 1.5 });
       },
       focus(s) {
         if (!s.coords || !map.current) return;
-        map.current.flyTo({ center: s.coords, zoom: 15.8, pitch: 62, bearing: -20, duration: 2200, essential: true });
+        map.current.flyTo({ center: s.coords, zoom: 15.8, pitch: 62, bearing: -20, duration: 2200, essential: false });
         markers.current.forEach(({ m }) => m.getPopup()?.remove());
         const mk = markers.current.get(s.email);
-        if (mk) setTimeout(() => mk.m.togglePopup(), 900);
+        if (popupTimer.current) clearTimeout(popupTimer.current);
+        if (mk) popupTimer.current = setTimeout(() => {
+          if (map.current && !mk.m.getPopup()?.isOpen()) mk.m.togglePopup();
+        }, window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 900);
       },
     }));
 

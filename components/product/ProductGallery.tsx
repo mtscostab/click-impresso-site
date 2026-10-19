@@ -47,6 +47,11 @@ export function ProductGallery({ images, title }: { images: string[]; title: str
     setLens({ x: e.clientX - r.left, y: e.clientY - r.top, on: true });
   }
 
+  function cancelDrag() {
+    drag.current = null;
+    setDragX(0);
+  }
+
   function onUp(e: React.PointerEvent) {
     const d = drag.current;
     drag.current = null;
@@ -76,10 +81,13 @@ export function ProductGallery({ images, title }: { images: string[]; title: str
           aria-label={`Fotos de ${title}`}
           onPointerDown={(e) => {
             if (e.button !== 0) return;
+            e.currentTarget.setPointerCapture(e.pointerId);
             drag.current = { x: e.clientX, moved: false };
           }}
           onPointerMove={onMove}
           onPointerUp={onUp}
+          onPointerCancel={cancelDrag}
+          onLostPointerCapture={cancelDrag}
           onPointerLeave={() => {
             setLens((l) => ({ ...l, on: false }));
             if (drag.current) {
@@ -171,7 +179,7 @@ export function ProductGallery({ images, title }: { images: string[]; title: str
         </div>
       )}
 
-      <button className="visually-hidden" onClick={() => box.current?.showModal()}>
+      <button className="gallery-open btn btn-ghost" onClick={() => box.current?.showModal()}>
         Abrir fotos em tela cheia
       </button>
 

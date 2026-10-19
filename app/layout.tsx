@@ -43,7 +43,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             cats={allCategories("categoria").map(({ slug, name, count }) => ({ slug, name, count }))}
             segs={allCategories("segmento").map(({ slug, name, count }) => ({ slug, name, count }))}
           />
-          <main id="conteudo">{children}</main>
+          <main id="conteudo" tabIndex={-1}>{children}</main>
           <Footer />
           <WhatsFab />
           <CookieNotice />

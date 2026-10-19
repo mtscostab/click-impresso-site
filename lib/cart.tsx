@@ -45,6 +45,20 @@ type CartContextValue = {
 const CartContext = createContext<CartContextValue | null>(null);
 const STORAGE_KEY = "clickimpresso:carrinho:v1";
 
+function isTier(value: unknown): value is Tier {
+  if (!value || typeof value !== "object") return false;
+  const t = value as Tier;
+  return Number.isFinite(t.qty) && t.qty > 0 && Number.isFinite(t.price) && t.price >= 0;
+}
+function isCartItem(value: unknown): value is CartItem {
+  if (!value || typeof value !== "object") return false;
+  const i = value as CartItem;
+  return [i.key, i.productId, i.title, i.image, i.paper].every((v) => typeof v === "string")
+    && Array.isArray(i.finishes) && i.finishes.every((v) => typeof v === "string")
+    && isTier(i.tier) && (i.tiers === undefined || (Array.isArray(i.tiers) && i.tiers.every(isTier)))
+    && (i.productionDays === null || (Number.isFinite(i.productionDays) && i.productionDays >= 0));
+}
+
 function itemKey(i: Omit<CartItem, "key">) {
   return [i.productId, i.paper, [...i.finishes].sort().join("+")].join("|");
 }
@@ -59,7 +73,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setItems(JSON.parse(raw));
+      if (raw) {
+        const parsed: unknown = JSON.parse(raw);
+        if (Array.isArray(parsed)) setItems(parsed.filter(isCartItem));
+      }
     } catch {}
     setReady(true);
   }, []);
@@ -70,6 +87,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
     } catch {}
   }, [items, ready]);
+
+  useEffect(() => () => { if (timer.current) clearTimeout(timer.current); }, []);
 
   const dismissToast = useCallback(() => {
     if (timer.current) clearTimeout(timer.current);

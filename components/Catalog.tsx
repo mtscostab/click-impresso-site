@@ -57,6 +57,7 @@ export function Catalog({ items, groupByCategory = false }: { items: CardProduct
           </span>
           <Select
             className="sort-sel"
+            label="Ordenar produtos"
             value={sort}
             onChange={(v) => setSort(v as Sort)}
             options={[

@@ -59,6 +59,7 @@ export function Select({ value, options, onChange, label, placeholder = "Selecio
   }, [active, open]);
 
   function choose(i: number) {
+    if (!options[i]) return;
     onChange(options[i].value);
     setOpen(false);
     root.current?.querySelector<HTMLButtonElement>("button")?.focus();
@@ -110,7 +111,9 @@ export function Select({ value, options, onChange, label, placeholder = "Selecio
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-labelledby={label ? `${baseId}-l ${baseId}-v` : undefined}
-        aria-controls={`${baseId}-list`}
+        disabled={options.length === 0}
+        aria-controls={open ? `${baseId}-list` : undefined}
+        onBlur={(e) => { if (!root.current?.contains(e.relatedTarget as Node | null)) setOpen(false); }}
         aria-activedescendant={open ? `${baseId}-o${active}` : undefined}
         onClick={() => setOpen((o) => !o)}
         onKeyDown={onKey}

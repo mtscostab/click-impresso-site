@@ -207,7 +207,7 @@ export function Configurator({ product }: { product: Product }) {
                 onClick={() => setTierIndex(i)}
                 aria-label={`${t.qty} unidades, ${formatBRL(t.price)}, ${formatBRL(u)} por unidade`}
               >
-                {i === bestIndex && tiers.length > 2 && <span className="best">menor/un</span>}
+                {i === bestIndex && tiers.length > 2 && unitPrice(t) < maxUnit && <span className="best">menor/un</span>}
                 <span className="ink" aria-hidden="true">
                   <b style={{ ["--h" as string]: Math.max(0.08, u / maxUnit) }} />
                 </span>

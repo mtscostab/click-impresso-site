@@ -23,11 +23,18 @@ export function Profile() {
   const [tab, setTab] = useState<(typeof TABS)[number]["id"]>("dados");
   const [data, setData] = useState<Data>(EMPTY);
   const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState(false);
 
   useEffect(() => {
     try {
       const raw = localStorage.getItem(KEY);
-      if (raw) setData({ ...EMPTY, ...JSON.parse(raw) });
+      if (raw) {
+        const parsed: unknown = JSON.parse(raw);
+        if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+          const valid = Object.fromEntries(Object.entries(parsed).filter(([key, value]) => key in EMPTY && typeof value === "string"));
+          setData({ ...EMPTY, ...valid });
+        }
+      }
     } catch {}
   }, []);
 
@@ -35,7 +42,12 @@ export function Profile() {
     e.preventDefault();
     try {
       localStorage.setItem(KEY, JSON.stringify(data));
-    } catch {}
+    } catch {
+      setSaveError(true);
+      setSaved(false);
+      return;
+    }
+    setSaveError(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 2400);
   }
@@ -126,6 +138,7 @@ export function Profile() {
           {tab !== "pedidos" && (
             <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
               <button className="btn btn-primary" type="submit"><Icon name={saved ? "check" : "file"} size={18} /> {saved ? "Salvo" : "Salvar dados"}</button>
+              {saveError && <span role="alert">Não foi possível salvar. Libere o armazenamento do navegador e tente novamente.</span>}
               {saved && <span role="status" className="lede" style={{ fontSize: "0.9rem" }}>Dados salvos neste navegador.</span>}
             </div>
           )}

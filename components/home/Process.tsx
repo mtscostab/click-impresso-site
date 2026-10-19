@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useLayoutEffect, useRef, useState } from "react";
+import { Component, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -11,6 +11,16 @@ const PressScene = dynamic(() => import("../three/PressScene"), {
   ssr: false,
   loading: () => <div className="map-fallback">Preparando a máquina…</div>,
 });
+
+class PressFallback extends Component<{ children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() { return { failed: true }; }
+  render() {
+    return this.state.failed
+      ? <img className="process-poster" src="/video/offset-hero-poster.jpg" alt="" />
+      : this.props.children;
+  }
+}
 
 const STEPS = [
   {
@@ -60,11 +70,15 @@ export function Process() {
   const progress = useRef(0);
   const trigger = useRef<ScrollTrigger | null>(null);
   const [step, setStep] = useState(0);
+  const [reduced, setReduced] = useState<boolean | null>(null);
   const bars = useRef<(HTMLElement | null)[]>([]);
 
   useLayoutEffect(() => {
     const el = root.current;
     if (!el) return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    setReduced(reduce);
+    if (reduce) return;
     const ctx = gsap.context(() => {
       trigger.current = ScrollTrigger.create({
         trigger: el,
@@ -90,7 +104,11 @@ export function Process() {
 
   function jump(i: number) {
     const t = trigger.current;
-    if (!t) return;
+    if (!t) {
+      progress.current = STEPS[i].from + 0.02;
+      setStep(i);
+      return;
+    }
     const target = t.start + (t.end - t.start) * (STEPS[i].from + 0.02);
     if (window.__lenis) window.__lenis.scrollTo(target, { duration: 1.6 });
     else window.scrollTo({ top: target, behavior: "smooth" });
@@ -99,7 +117,7 @@ export function Process() {
   return (
     <section className="process" id="processos" ref={root} aria-labelledby="proc-title">
       <div className="process-canvas" aria-hidden="true">
-        <PressScene progress={progress} />
+        {reduced === false && <PressFallback><PressScene progress={progress} /></PressFallback>}
       </div>
       <div className="process-ui">
         <div className="process-head">
@@ -137,7 +155,7 @@ export function Process() {
           </div>
           <nav className="process-progress" aria-label="Etapas da produção">
             {STEPS.map((s, i) => (
-              <button key={s.id} className={i === step ? "on" : ""} onClick={() => jump(i)}>
+              <button key={s.id} className={i === step ? "on" : ""} aria-label={s.tag} aria-pressed={i === step} onClick={() => jump(i)}>
                 <i ref={(el) => void (bars.current[i] = el)} style={{ ["--bar" as string]: s.color }} />
                 <span className="full">{s.tag}</span>
                 <span className="short" aria-hidden="true">{s.short}</span>

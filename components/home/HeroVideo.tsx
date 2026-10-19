@@ -58,9 +58,14 @@ export function HeroVideo({ src, poster }: { src: string; poster: string }) {
     const el = box.current;
     const v = video.current;
     if (!el || !v) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      v.pause();
+      setGl(false);
+      return;
+    }
     let renderer: THREE.WebGLRenderer;
     try {
-      renderer = new THREE.WebGLRenderer({ antialias: false, alpha: false, powerPreference: "high-performance" });
+      renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true, powerPreference: "high-performance" });
     } catch {
       setGl(false);
       return;
@@ -83,7 +88,8 @@ export function HeroVideo({ src, poster }: { src: string; poster: string }) {
     const mat = new THREE.ShaderMaterial({ uniforms, vertexShader: VERT, fragmentShader: FRAG });
     const scene = new THREE.Scene();
     const cam = new THREE.Camera();
-    scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), mat));
+    const geometry = new THREE.PlaneGeometry(2, 2);
+    scene.add(new THREE.Mesh(geometry, mat));
 
     const target = new THREE.Vector2(0.72, 0.5);
     let targetRadius = 180;
@@ -117,9 +123,14 @@ export function HeroVideo({ src, poster }: { src: string; poster: string }) {
     }
     section.addEventListener("pointermove", move as EventListener);
     section.addEventListener("pointerdown", down);
-    section.addEventListener("pointerup", up);
+    window.addEventListener("pointerup", up);
+    section.addEventListener("pointercancel", up);
 
-    v.addEventListener("loadedmetadata", () => uniforms.videoSize.value.set(v.videoWidth, v.videoHeight));
+    const metadata = () => uniforms.videoSize.value.set(v.videoWidth || 1920, v.videoHeight || 1080);
+    metadata();
+    v.addEventListener("loadedmetadata", metadata);
+    const fail = () => setGl(false);
+    v.addEventListener("error", fail);
     v.play().catch(() => {});
 
     let raf = 0;
@@ -133,7 +144,7 @@ export function HeroVideo({ src, poster }: { src: string; poster: string }) {
 
     function frame() {
       raf = requestAnimationFrame(frame);
-      if (!visible) return;
+      if (!visible || document.hidden || v!.readyState < 2) return;
       // a lente acompanha o ponteiro com um leve atraso, sem animar mais nada
       uniforms.mouse.value.lerp(target, 0.14);
       uniforms.radius.value += (targetRadius - uniforms.radius.value) * 0.12;
@@ -147,7 +158,12 @@ export function HeroVideo({ src, poster }: { src: string; poster: string }) {
       io.disconnect();
       section.removeEventListener("pointermove", move as EventListener);
       section.removeEventListener("pointerdown", down);
-      section.removeEventListener("pointerup", up);
+      window.removeEventListener("pointerup", up);
+      section.removeEventListener("pointercancel", up);
+      v.removeEventListener("loadedmetadata", metadata);
+      v.removeEventListener("error", fail);
+      v.pause();
+      geometry.dispose();
       tex.dispose();
       mat.dispose();
       renderer.dispose();
@@ -156,7 +172,7 @@ export function HeroVideo({ src, poster }: { src: string; poster: string }) {
   }, []);
 
   return (
-    <div className="hv-media" ref={box}>
+    <div className="hv-media" ref={box} style={{ backgroundImage: `url("${poster}")`, backgroundSize: "cover", backgroundPosition: "center" }}>
       <video
         ref={video}
         className={gl ? "hv-source" : "hv-fallback"}
@@ -165,8 +181,7 @@ export function HeroVideo({ src, poster }: { src: string; poster: string }) {
         muted
         loop
         playsInline
-        autoPlay
-        preload="auto"
+        preload="metadata"
         aria-hidden="true"
       />
     </div>

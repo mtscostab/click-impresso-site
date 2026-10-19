@@ -20,7 +20,8 @@ export function Showcase({ picks }: { picks: Pick[] }) {
     const el = root.current;
     const tr = track.current;
     if (!el || !tr) return;
-    const ctx = gsap.context(() => {
+    const mm = gsap.matchMedia();
+    mm.add("(min-width: 761px) and (prefers-reduced-motion: no-preference)", () => {
       const distance = () => Math.max(0, tr.scrollWidth - window.innerWidth + 32);
       const tween = gsap.to(tr, {
         x: () => -distance(),
@@ -48,7 +49,7 @@ export function Showcase({ picks }: { picks: Pick[] }) {
         );
       });
     }, el);
-    return () => ctx.revert();
+    return () => mm.revert();
   }, []);
 
   return (
@@ -60,11 +61,18 @@ export function Showcase({ picks }: { picks: Pick[] }) {
           <h2 className="display" id="show-title">
             O que a gente imprime para você
           </h2>
-          <p className="lede">Preço por quantidade e prazo de produção em cada produto. Arraste a página para ver.</p>
+          <p className="lede">Preço por quantidade e prazo de produção em cada produto. Role para explorar os produtos.</p>
         </div>
         <div className="track" ref={track}>
           {picks.map((p) => (
-            <Link key={p.id} className="pcard" href={`/produto/${p.id}`}>
+            <Link key={p.id} className="pcard" href={`/produto/${p.id}`} onFocus={(e) => {
+              const pin = ScrollTrigger.getAll().find((t) => t.trigger === root.current);
+              if (!pin || !track.current) return;
+              const distance = track.current.scrollWidth - window.innerWidth + 32;
+              const x = Math.max(0, Math.min(distance, e.currentTarget.offsetLeft - 32));
+              window.__lenis?.scrollTo(pin.start + x, { immediate: true });
+              if (!window.__lenis) window.scrollTo(0, pin.start + x);
+            }}>
               <span className="go" aria-hidden="true">
                 <Icon name="arrowRight" size={18} />
               </span>

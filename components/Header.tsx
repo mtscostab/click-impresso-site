@@ -13,7 +13,13 @@ type Hit = { id: string; t: string; c: string; p: number; i: string; s: string }
 
 let indexPromise: Promise<Hit[]> | null = null;
 function loadIndex() {
-  indexPromise ??= fetch("/search-index.json").then((r) => r.json());
+  indexPromise ??= fetch("/search-index.json").then((r) => {
+    if (!r.ok) throw new Error("Busca indisponível");
+    return r.json();
+  }).catch((error) => {
+    indexPromise = null;
+    throw error;
+  });
   return indexPromise;
 }
 
@@ -31,12 +37,13 @@ function Highlight({ text, q }: { text: string; q: string }) {
   );
 }
 
-function Search({ cats }: { cats: NavCat[] }) {
+function Search({ cats, onNavigate }: { cats: NavCat[]; onNavigate?: () => void }) {
   const router = useRouter();
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
   const listId = useId();
+  const inputId = useId();
   const wrap = useRef<HTMLDivElement>(null);
 
   const [index, setIndex] = useState<Hit[] | null>(null);
@@ -68,10 +75,15 @@ function Search({ cats }: { cats: NavCat[] }) {
 
   function go(href: string) {
     setOpen(false);
+    onNavigate?.();
     router.push(href);
   }
 
   function onKey(e: React.KeyboardEvent) {
+    if (e.key === "Escape") {
+      setOpen(false);
+      return;
+    }
     if (!open || !flat.length) return;
     if (e.key === "ArrowDown") {
       e.preventDefault();
@@ -79,37 +91,38 @@ function Search({ cats }: { cats: NavCat[] }) {
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
       setActive((a) => (a <= 0 ? flat.length - 1 : a - 1));
-    } else if (e.key === "Escape") {
-      setOpen(false);
     } else if (e.key === "Enter" && active >= 0) {
       e.preventDefault();
-      go(flat[active]);
+      go(flat[active] ?? `/busca?q=${encodeURIComponent(q.trim())}`);
     }
   }
 
   const showPanel = open && q.trim().length > 0;
 
   return (
-    <div className="search" ref={wrap}>
+    <div className="search" ref={wrap} onBlur={(e) => {
+      if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setOpen(false);
+    }}>
       <form
         role="search"
         onSubmit={(e) => {
           e.preventDefault();
-          go(`/busca?q=${encodeURIComponent(q.trim())}`);
+          if (q.trim()) go(`/busca?q=${encodeURIComponent(q.trim())}`);
         }}
       >
-        <label htmlFor="busca" className="visually-hidden">
+        <label htmlFor={inputId} className="visually-hidden">
           Pesquisar produtos no site
         </label>
         <input
-          id="busca"
+          id={inputId}
           type="search"
           autoComplete="off"
           placeholder="Pesquisar produtos no site"
           value={q}
           role="combobox"
           aria-expanded={showPanel}
-          aria-controls={listId}
+          aria-controls={showPanel ? listId : undefined}
+          aria-activedescendant={showPanel && active >= 0 && active < flat.length ? `${listId}-${active}` : undefined}
           aria-autocomplete="list"
           onChange={(e) => {
             setQ(e.target.value);
@@ -127,7 +140,7 @@ function Search({ cats }: { cats: NavCat[] }) {
         <div className="suggest" id={listId} role="listbox" aria-label="Sugestões">
           {results.items.length === 0 && results.cats.length === 0 && (
             <p className="empty">
-              Nada encontrado para “{q}”. Tente “caneca”, “banner” ou “crachá”.
+              {index === null ? "Carregando sugestões…" : `Nenhuma sugestão para “${q}”. Pressione Enter para buscar no catálogo.`}
             </p>
           )}
           {results.items.length > 0 && (
@@ -138,6 +151,7 @@ function Search({ cats }: { cats: NavCat[] }) {
                   <li key={p.id}>
                     <a
                       href={`/produto/${p.id}`}
+                      id={`${listId}-${i}`}
                       role="option"
                       aria-selected={active === i}
                       onClick={(e) => {
@@ -165,6 +179,7 @@ function Search({ cats }: { cats: NavCat[] }) {
                     <a
                       className="cat"
                       href={`/categoria/${c.slug}`}
+                      id={`${listId}-${results.items.length + j}`}
                       role="option"
                       aria-selected={active === results.items.length + j}
                       onClick={(e) => {
@@ -220,8 +235,9 @@ export function Header({ cats, segs }: { cats: NavCat[]; segs: NavCat[] }) {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setSearchOpen(false);
     document.addEventListener("mousedown", onDoc);
     document.addEventListener("keydown", onKey);
-    setTimeout(() => searchWrap.current?.querySelector("input")?.focus(), 30);
+    const focusTimer = setTimeout(() => searchWrap.current?.querySelector("input")?.focus(), 30);
     return () => {
+      clearTimeout(focusTimer);
       document.removeEventListener("mousedown", onDoc);
       document.removeEventListener("keydown", onKey);
     };
@@ -308,7 +324,7 @@ export function Header({ cats, segs }: { cats: NavCat[]; segs: NavCat[] }) {
         </div>
         <div className="drawer-body">
           <div className="drawer-search">
-            <Search cats={cats} />
+            <Search cats={cats} onNavigate={() => drawer.current?.close()} />
           </div>
           <ul>
             {links.map((l) => (

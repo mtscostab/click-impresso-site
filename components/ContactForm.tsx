@@ -34,7 +34,6 @@ export function ContactForm() {
       return;
     }
     setSent(true);
-    setV({ nome: "", email: "", telefone: "", mensagem: "" });
     setTouched({});
   }
 
@@ -48,22 +47,24 @@ export function ContactForm() {
   return (
     <form className="form" noValidate onSubmit={onSubmit}>
       <h2 className="h-sub form-title">Envie uma mensagem</h2>
+      <p className="form-preview-note">Nesta versão de apresentação, o formulário apenas valida os dados. Para falar com a equipe, use os contatos ao lado.</p>
       <div className="field">
-        <label htmlFor="nome">Nome</label>
-        <input id="nome" name="nome" autoComplete="name" value={v.nome} onChange={(e) => setV({ ...v, nome: e.target.value })} onBlur={blur("nome")} aria-invalid={!!show("nome")} aria-describedby={show("nome") ? "nome-err" : undefined} />
+        <label htmlFor="nome">Nome (obrigatório)</label>
+        <input id="nome" name="nome" required autoComplete="name" value={v.nome} onChange={(e) => { setSent(false); setV({ ...v, nome: e.target.value }); }} onBlur={blur("nome")} aria-invalid={!!show("nome")} aria-describedby={show("nome") ? "nome-err" : undefined} />
         {err("nome")}
       </div>
       <div className="field">
-        <label htmlFor="email">E-mail</label>
+        <label htmlFor="email">E-mail (obrigatório)</label>
         <input
           id="email"
           name="email"
+          required
           type="email"
           inputMode="email"
           autoComplete="email"
           placeholder="nome@empresa.com.br"
           value={v.email}
-          onChange={(e) => setV({ ...v, email: e.target.value.replace(/\s/g, "") })}
+          onChange={(e) => { setSent(false); setV({ ...v, email: e.target.value.replace(/\s/g, "") }); }}
           onBlur={blur("email")}
           aria-invalid={!!show("email")}
           aria-describedby={show("email") ? "email-err" : undefined}
@@ -81,7 +82,7 @@ export function ContactForm() {
           placeholder="(51) 99999-9999"
           value={v.telefone}
           onKeyDown={digitsOnlyKey}
-          onChange={(e) => setV({ ...v, telefone: maskPhone(e.target.value) })}
+          onChange={(e) => { setSent(false); setV({ ...v, telefone: maskPhone(e.target.value) }); }}
           onBlur={blur("telefone")}
           aria-invalid={!!show("telefone")}
           aria-describedby={show("telefone") ? "telefone-err" : undefined}
@@ -89,8 +90,8 @@ export function ContactForm() {
         {err("telefone")}
       </div>
       <div className="field">
-        <label htmlFor="mensagem">Mensagem</label>
-        <textarea id="mensagem" name="mensagem" rows={4} value={v.mensagem} onChange={(e) => setV({ ...v, mensagem: e.target.value })} onBlur={blur("mensagem")} aria-invalid={!!show("mensagem")} aria-describedby={show("mensagem") ? "mensagem-err" : undefined} />
+        <label htmlFor="mensagem">Mensagem (obrigatória)</label>
+        <textarea id="mensagem" name="mensagem" required rows={4} value={v.mensagem} onChange={(e) => { setSent(false); setV({ ...v, mensagem: e.target.value }); }} onBlur={blur("mensagem")} aria-invalid={!!show("mensagem")} aria-describedby={show("mensagem") ? "mensagem-err" : undefined} />
         {err("mensagem")}
       </div>
       <button className="btn btn-primary btn-lg" type="submit" style={{ justifySelf: "start" }}>
@@ -99,7 +100,7 @@ export function ContactForm() {
       {sent && (
         <p className="notice" role="status">
           <Icon name="check" size={18} />
-          Mensagem validada. Neste protótipo local ela não é enviada; no site, segue para atendimento@clickimpresso.com.br.
+          Dados validados. Nenhuma mensagem foi enviada nesta versão. Seus campos foram mantidos para você copiar e falar com a equipe.
         </p>
       )}
     </form>

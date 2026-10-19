@@ -9,7 +9,7 @@ import { useScrollFx } from "../motion/useScrollFx";
 const QA = [
   {
     q: "Qual é o prazo de produção?",
-    a: "Cada produto mostra o prazo em dias úteis na própria página, antes do pedido. Cartões de visita, crachás e folders, por exemplo, ficam prontos em 2 dias úteis; o prazo começa a contar depois da aprovação da arte.",
+    a: "Cada produto mostra o prazo em dias úteis na própria página, antes do pedido. O prazo varia conforme o produto e começa a contar depois da aprovação da arte.",
   },
   {
     q: "Posso enviar a minha arte pronta?",

@@ -16,7 +16,7 @@ export const stores: Store[] = [
   { name: "Loja Assis Brasil", address: "Av. Assis Brasil 3205, Porto Alegre - RS", phone: "+55 51 3181-2338", email: "assisbrasil@clickimpresso.com.br", region: "Porto Alegre" },
   { name: "Loja Nilo Peçanha", address: "Av. Nilo Peçanha 2469, Porto Alegre - RS", phone: "+55 51 3181-2353", email: "nilo@clickimpresso.com.br", region: "Porto Alegre" },
   { name: "Loja Zona Sul", address: "Av. Wenceslau 2170, Porto Alegre - RS", phone: "+55 51 3181-2334", email: "wenceslau@clickimpresso.com.br", region: "Porto Alegre" },
-  { name: "Loja Centro", address: "Rua os Andradas 1159, Porto Alegre - RS", phone: "+55 51 3181-2336", email: "andradas@clickimpresso.com.br", region: "Porto Alegre" },
+  { name: "Loja Centro", address: "Rua dos Andradas 1159, Porto Alegre - RS", phone: "+55 51 3181-2336", email: "andradas@clickimpresso.com.br", region: "Porto Alegre" },
   { name: "Loja Shopping TOTAL", address: "Cristóvão Colombo, 545, Loja 1058 - Porto Alegre - RS", phone: "+55 51 3181-2345", email: "total@clickimpresso.com.br", region: "Porto Alegre" },
   { name: "Loja Ipiranga (Santana)", address: "Av. Barão do Amazonas 1364 - Porto Alegre (Esquina com Av. Ipiranga)", phone: "+55 51 3181-2351", email: "ipiranga@clickimpresso.com.br", region: "Porto Alegre" },
   { name: "Loja Anita (Mont'Serrat)", address: "Anita Garibaldi, 637 - Porto Alegre", phone: "+55 51 3181-2342", email: "anita@clickimpresso.com.br", region: "Porto Alegre" },

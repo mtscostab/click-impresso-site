@@ -56,9 +56,9 @@ export function WherePage() {
               <span className="visually-hidden">Buscar loja por nome ou endereço</span>
               <input type="search" placeholder="Bairro, rua ou cidade" value={q} onChange={(e) => setQ(e.target.value)} />
             </label>
-            <div className="map-steps" role="tablist" aria-label="Região">
+            <div className="map-steps" role="group" aria-label="Região">
               {REGIONS.map((r) => (
-                <button key={r} role="tab" aria-selected={r === region} className={r === region ? "on" : ""} onClick={() => choose(r)}>
+                <button key={r} aria-pressed={r === region} className={r === region ? "on" : ""} onClick={() => choose(r)}>
                   {r}
                 </button>
               ))}
@@ -73,7 +73,7 @@ export function WherePage() {
                 className={`store-card${active === s.email ? " on" : ""}`}
                 onClick={() => pick(s)}
               >
-                <h3>{s.name}</h3>
+                <h3><button className="store-focus" type="button" aria-pressed={active === s.email} onClick={(e) => { e.stopPropagation(); pick(s); }}>{s.name}</button></h3>
                 <p>
                   <Icon name="pin" size={16} /> {s.address}
                 </p>

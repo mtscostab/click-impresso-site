@@ -33,6 +33,7 @@ export function StoresMapSection() {
   useLayoutEffect(() => {
     const el = root.current;
     if (!el) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const ctx = gsap.context(() => {
       trig.current = ScrollTrigger.create({
         trigger: el,
@@ -58,7 +59,13 @@ export function StoresMapSection() {
 
   function goStep(i: number) {
     const t = trig.current;
-    if (!t) return;
+    if (!t) {
+      stepRef.current = i;
+      setStep(i);
+      setActive(undefined);
+      map.current?.fly(VIEWS[STEPS[i]], 0);
+      return;
+    }
     const target = t.start + ((t.end - t.start) * (i + 0.5)) / STEPS.length;
     if (window.__lenis) window.__lenis.scrollTo(target, { duration: 1.4 });
     else window.scrollTo({ top: target, behavior: "smooth" });
@@ -82,9 +89,9 @@ export function StoresMapSection() {
               ? "Parque gráfico em Porto Alegre e lojas no RS e em Curitiba. Role para percorrer o mapa."
               : `${list.length} ${list.length === 1 ? "loja" : "lojas"} nesta região. Toque numa loja para ver no mapa.`}
           </p>
-          <div className="map-steps" role="tablist" aria-label="Região do mapa">
+          <div className="map-steps" role="group" aria-label="Região do mapa">
             {STEPS.map((s, i) => (
-              <button key={s} role="tab" aria-selected={i === step} className={i === step ? "on" : ""} onClick={() => goStep(i)}>
+              <button key={s} aria-pressed={i === step} className={i === step ? "on" : ""} onClick={() => goStep(i)}>
                 {LABEL[s]}
               </button>
             ))}

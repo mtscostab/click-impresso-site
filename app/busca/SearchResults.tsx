@@ -10,7 +10,13 @@ type SearchCard = CardProduct & { hay: string };
 
 let cardsPromise: Promise<SearchCard[]> | null = null;
 function loadCards() {
-  cardsPromise ??= fetch("/search-cards.json").then((r) => r.json());
+  cardsPromise ??= fetch("/search-cards.json").then((r) => {
+    if (!r.ok) throw new Error("Busca indisponível");
+    return r.json();
+  }).catch((error) => {
+    cardsPromise = null;
+    throw error;
+  });
   return cardsPromise;
 }
 
@@ -19,9 +25,16 @@ export function SearchResults() {
   const q = (useSearchParams().get("q") ?? "").trim();
   const [cards, setCards] = useState<SearchCard[] | null>(null);
 
+  const [failed, setFailed] = useState(false);
+  const [attempt, setAttempt] = useState(0);
   useEffect(() => {
-    if (q) loadCards().then(setCards);
-  }, [q]);
+    if (!q) return;
+    let current = true;
+    setFailed(false);
+    loadCards().then((data) => { if (current) setCards(data); })
+      .catch(() => { if (current) setFailed(true); });
+    return () => { current = false; };
+  }, [q, attempt]);
 
   const words = normalize(q).split(/\s+/).filter(Boolean);
   const found = cards && words.length ? cards.filter((c) => words.every((w) => c.hay.includes(w))) : [];
@@ -44,12 +57,15 @@ export function SearchResults() {
         <p className="lede num">
           {!q
             ? "Use a busca no topo da página."
+            : failed
+              ? "Não foi possível carregar a busca. Verifique sua conexão e tente novamente."
             : !cards
               ? "Buscando…"
               : `${found.length} ${found.length === 1 ? "produto encontrado" : "produtos encontrados"}`}
         </p>
       </header>
-      {q && cards && <Catalog key={q} items={found} groupByCategory />}
+      {failed && <button className="btn btn-primary" onClick={() => setAttempt((a) => a + 1)}>Tentar novamente</button>}
+      {q && !failed && cards && <Catalog key={q} items={found} groupByCategory />}
     </>
   );
 }

@@ -18,6 +18,7 @@ export function Manifesto() {
   useLayoutEffect(() => {
     const el = root.current;
     if (!el) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const ctx = gsap.context(() => {
       const words = gsap.utils.toArray<HTMLElement>(".mw");
       ScrollTrigger.create({

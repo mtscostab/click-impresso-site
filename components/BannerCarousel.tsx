@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { CropMarks } from "./Marks";
 import { Icon } from "./Icon";
 
@@ -15,6 +16,7 @@ export function BannerCarousel({ banners }: { banners: Banner[] }) {
   const [paused, setPaused] = useState(false);
   const [reduced, setReduced] = useState(false);
   const drag = useRef<{ x: number; id: number } | null>(null);
+  const swiped = useRef(false);
   const n = banners.length;
 
   useEffect(() => {
@@ -57,6 +59,9 @@ export function BannerCarousel({ banners }: { banners: Banner[] }) {
       <div
         className="carousel-stage"
         onPointerDown={(e) => {
+          if (e.button !== 0) return;
+          swiped.current = false;
+          e.currentTarget.setPointerCapture(e.pointerId);
           drag.current = { x: e.clientX, id: e.pointerId };
         }}
         onPointerUp={(e) => {
@@ -64,12 +69,18 @@ export function BannerCarousel({ banners }: { banners: Banner[] }) {
           const dx = e.clientX - drag.current.x;
           drag.current = null;
           if (Math.abs(dx) > 40) {
+            swiped.current = true;
             e.preventDefault();
             if (dx < 0) go(index + 1, "from-left");
             else go(index - 1, "from-right");
           }
         }}
-        onPointerCancel={() => (drag.current = null)}
+        onPointerCancel={() => { drag.current = null; swiped.current = false; }}
+        onLostPointerCapture={() => { drag.current = null; }}
+        onClickCapture={(e) => {
+          if (swiped.current) { e.preventDefault(); e.stopPropagation(); swiped.current = false; }
+          else if (e.target === e.currentTarget) e.currentTarget.querySelector<HTMLAnchorElement>(".is-active a")?.click();
+        }}
       >
         {banners.map((b, i) => {
           const state = i === index ? `is-active ${dir}` : i === prev ? "is-prev" : "";
@@ -82,7 +93,7 @@ export function BannerCarousel({ banners }: { banners: Banner[] }) {
               aria-label={`${i + 1} de ${n}: ${b.alt}`}
               aria-hidden={i !== index}
             >
-              <a href={b.href} tabIndex={i === index ? 0 : -1} draggable={false}>
+              <Link href={b.href} tabIndex={i === index ? 0 : -1} draggable={false}>
                 <picture>
                   <source media="(max-width: 767px)" srcSet={b.srcMobile} />
                   <img
@@ -95,7 +106,7 @@ export function BannerCarousel({ banners }: { banners: Banner[] }) {
                   draggable={false}
                 />
                 </picture>
-              </a>
+              </Link>
             </div>
           );
         })}

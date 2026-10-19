@@ -18,6 +18,7 @@ export function Differentials({ tiers }: { tiers: Tier[] }) {
     const el = root.current;
     if (!el) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const cleanups: (() => void)[] = [];
     const ctx = gsap.context(() => {
       if (!reduce) {
         gsap.from(".tile", {
@@ -50,9 +51,13 @@ export function Differentials({ tiers }: { tiers: Tier[] }) {
         const leave = () => gsap.to(t, { rotateX: 0, rotateY: 0, duration: 0.8, ease: "elastic.out(1, 0.6)" });
         t.addEventListener("pointermove", move);
         t.addEventListener("pointerleave", leave);
+        cleanups.push(() => {
+          t.removeEventListener("pointermove", move);
+          t.removeEventListener("pointerleave", leave);
+        });
       });
     }, el);
-    return () => ctx.revert();
+    return () => { cleanups.forEach((cleanup) => cleanup()); ctx.revert(); };
   }, []);
 
   return (
